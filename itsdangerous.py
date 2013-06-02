@@ -731,7 +731,7 @@ class TimedJSONWebSignatureSerializer(JSONWebSignatureSerializer):
         self.expires_in = expires_in
 
     def loads(self, s, salt=None, return_header=False):
-        payload = super(TimedJSONWebSignatureSerializer, self).loads(s, salt, return_header)
+        payload = JSONWebSignatureSerializer.loads(self, s, salt, return_header)
 
         if 'exp' not in payload:
             raise BadSignature("Missing ['exp'] expiry date", payload=payload)
@@ -744,14 +744,14 @@ class TimedJSONWebSignatureSerializer(JSONWebSignatureSerializer):
                 'Signature expired',
                 payload=payload)
 
-        return super(TimedJSONWebSignatureSerializer, self).loads(s, salt, return_header)
+        return JSONWebSignatureSerializer.loads(self, s, salt, return_header)
 
     def dumps(self, obj, salt=None, header_fields=None):
         iat = self.now()
         exp = iat + self.expires_in
         obj['iat'] = iat
         obj['exp'] = exp
-        return super(TimedJSONWebSignatureSerializer, self).dumps(obj, salt=salt, header_fields=header_fields)
+        return JSONWebSignatureSerializer.dumps(self, obj, salt=salt, header_fields=header_fields)
 
     def now(self):
         return calendar.timegm(datetime.utcnow().utctimetuple())
